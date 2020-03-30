@@ -30,14 +30,14 @@ int main()
     scanf("%d", &noofResources);
 
     //Allocating memory for the data structres
-    availVector = (int *) malloc(noofResources*sizeof(int));
+    availVector     = (int *)  malloc(noofResources*sizeof(int));
     allocatedMatrix = (int **) malloc(noofProcesses*sizeof(int *));
-    maxMatrix = (int **) malloc(noofProcesses*sizeof(int *));
-    needMatrix = (int **) malloc(noofProcesses*sizeof(int *));
+    maxMatrix       = (int **) malloc(noofProcesses*sizeof(int *));
+    needMatrix      = (int **) malloc(noofProcesses*sizeof(int *));
     for(int i = 0;i < noofProcesses;i++) {
         allocatedMatrix[i] = (int *) malloc(noofResources*sizeof(int));
-        maxMatrix[i] = (int *) malloc(noofResources*sizeof(int));
-        needMatrix[i] = (int *) malloc(noofResources*sizeof(int));
+        maxMatrix[i]       = (int *) malloc(noofResources*sizeof(int));
+        needMatrix[i]      = (int *) malloc(noofResources*sizeof(int));
     }
 
     //getting entries for Available Resources
@@ -184,18 +184,18 @@ bool isSafe()
     }
     if(k == noofProcesses)
     {
-        printf("\n\nAll processes can complete");
-        printf("\nThe safe sequence is:\n");
-        for(int i=0; i<k; i++)
-            printf("Process %d ;", sequence[i]);
+        // printf("\n\nAll processes can complete");
+        // printf("\nThe safe sequence is:\n");
+        // for(int i=0; i<k; i++)
+        //     printf("Process %d ;", sequence[i]);
         return true;
     }
     else
     {
-        printf("\n\nThe processes that can complete are:\n");
-        for(int i=0; i<k; i++)
-            printf("Process %d   ;", sequence[i]);
-        printf("\nThe remaining processes cannot complete");
+        // printf("\n\nThe processes that can complete are:\n");
+        // for(int i=0; i<k; i++)
+        //     printf("Process %d   ;", sequence[i]);
+        // printf("\nThe remaining processes cannot complete");
         return false;
     }
 }
