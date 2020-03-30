@@ -1,156 +1,174 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<conio.h>
 #include<pthread.h>
 #include<unistd.h>
-#include<windows.h>
 #include<stdbool.h>
 
-
 //global variables
-int p, r;
+int noofProcesses, noofResources;
+int *availVector;
+int **allocatedMatrix;
+int **maxMatrix;
+int **needMatrix;
 pthread_mutex_t mutex;
 
-//FUNCTIONS
-void print1d(int a[]);
-void print2d(int a[p][r]);
-bool isSafe(int available[], int max[p][r], int allocated[p][r], int need[p][r]);
+//Function Declrations
+void printAvailVector();
+void printAllocMatrix();
+void printMaxMatrix();
+void printNeedMatrix();
+void printAll();
+bool isSafe();
 
 //main function
 int main()
 {
     printf("Enter number of unique processes and resources: \n");
     printf("Processes: ");
-    scanf("%d", &p);
+    scanf("%d", &noofProcesses);
     printf("Resources: ");
-    scanf("%d", &r);
+    scanf("%d", &noofResources);
 
-    int avaliable[r];
-    int allocated[p][r];
-    int max[p][r];
-    int need[p][r];
-
-    //getting available resources
-    printf("\nEnter the number of AVAILABLE entities of each resource: \n");
-    for(int i=0; i<r; i++) {
+    //getting entries for Available Resources
+    printf("\nEnter the number of available entities of each resource: \n");
+    for(int i=0; i<noofResources; i++) {
         printf("Resource %d: ", i+1);
-        scanf("%d", &avaliable[i]);
+        scanf("%d", &availVector[i]);
     }
 
-    //getting entries for max
+    //getting entries for Maximum Matrix
     printf("\n\nEnter the number of resources of each type MAXIMUM NEEDED for each process: \n");
-    for(int i=0; i<p; i++){
+    for(int i=0; i<noofProcesses; i++){
         printf("Process %d: \n", i+1);
-        for(int j=0; j<r; j++) {
+        for(int j=0; j<noofResources; j++) {
             printf("Resource %d: ", j+1);
-            scanf("%d", &max[i][j]);
+            scanf("%d", &maxMatrix[i][j]);
         }
         printf("\n");
     }
 
-    //getting entries for allocated
+    //getting entries for Allocated Matrix
     printf("\n\nEnter the number of resources of each type ALLOCATED for each process: \n");
-    for(int i=0; i<p; i++){
+    for(int i=0; i<noofProcesses; i++){
         printf("Process %d: \n", i+1);
-        for(int j=0; j<r; j++) {
+        for(int j=0; j<noofResources; j++) {
             printf("Resource %d: ", j+1);
-            scanf("%d", &allocated[i][j]);
+            scanf("%d", &allocatedMatrix[i][j]);
         }
         printf("\n");
     }
 
-    //calculating need
-    for(int i=0; i<p; i++)
-        for(int j=0; j<r; j++)
-            need[i][j] = max[i][j] - allocated[i][j];
+    //calculating Need Matrix
+    for(int i=0; i<noofProcesses; i++)
+        for(int j=0; j<noofResources; j++)
+            needMatrix[i][j] = maxMatrix[i][j] - allocatedMatrix[i][j];
 
     //printing everything
-    system("cls");
     printf("AVALILABLE:\n");
-    print1d(avaliable);
-    printf("\n\nMAX:\n");
-    print2d(max);
-    printf("\n\n\nALLOCATED:\n");
-    print2d(allocated);
-    printf("\n\n\nNEED\n");
-    print2d(need);
+    print1d(availVector);
+    printf("\n\nmaxMatrix:\n");
+    print2d(maxMatrix);
+    printf("\n\n\nallocatedMatrix:\n");
+    print2d(allocatedMatrix);
+    printf("\n\n\nneedMatrix\n");
+    print2d(needMatrix);
 
     //checking if initial state is safe
-    if(isSafe(avaliable, max, allocated, need))
+    if(isSafe(availVector, maxMatrix, allocatedMatrix, needMatrix))
         printf("\n\nThe given input IS SAFE\n");
     else
         printf("\n\nThe given input IS NOT SAFE\n");
 
-
-//    //creating threads
-//	pthread_mutex_init(&mutex,NULL);
-//	pthread_attr_t attrDefault;
-//	pthread_attr_init(&attrDefault);
-//	pthread_t *tid = (pthread_t*)malloc(sizeof(pthread_t) * p);
-//	int *pid = (int*)malloc(sizeof(int)*p);//customer's ID
-//
-//	//initialize pid
-//	for(i = 0; i<p; i++){
-//		*(pid + i) = i;
-//		pthread_create((tid+i), &attrDefault, customer, (pid+i));
-//	}
-//	//join threads
-//	for(i = 0; i<p; i++){
-//		pthread_join(*(tid+i),NULL);
-//	}
     return 0;
 }
 
 
-//FUNCTION
-void print1d(int a[])
-{
-    for(int i=0; i<r; i++)
-        printf("Resource %d: %d\t", i+1, a[i]);
+//Function Definition
+
+//Printing Available Resources Vector
+void printAvailVector() {
+
+    printf("Available Resources : { ");
+    for(int i = 0;i < noofResources;i++)
+        printf("%d, ", availVector[i]);
+    printf("}\n");
+
 }
 
-void print2d(int a[p][r])
-{
-    printf("\t");
-    for(int i=0; i<r; i++)
-        printf("Resource %d   ", i+1);
-    for(int i=0; i<p; i++){
-        printf("\nProcess %d: ", i+1);
-        for(int j=0; j<r; j++){
-                printf("%d\t\t", a[i][j]);
-        }
+//Printing Allocated Matrix
+void printAllocMatrix() {
+
+    printf("Allocated Matrix : \n");
+    for(int i = 0;i < noofProcesses;i++) {
+        printf("{ ");
+        for(int j = 0;j < noofResources;j++)
+            printf("%d, ", allocatedMatrix[i][j]);
+        printf(" }\n");
     }
 }
 
+//Printing Maximum Matrix
+void printMaxMatrix() {
 
-bool isSafe(int available[], int max[p][r], int allocated[p][r], int need[p][r])
+    printf("Maximum Matrix : \n");
+    for(int i = 0;i < noofProcesses;i++) {
+        printf("{ ");
+        for(int j = 0;j < noofResources;j++)
+            printf("%d, ", maxMatrix[i][j]);
+        printf(" }\n");
+    }
+}
+
+//Printing Need Matrix
+void printNeedMatrix() {
+
+    printf("Need Matrix : \n");
+    for(int i = 0;i < noofProcesses;i++) {
+        printf("{ ");
+        for(int j = 0;j < noofResources;j++)
+            printf("%d, ", needMatrix[i][j]);
+        printf(" }\n");
+    }
+}
+
+//Printing All Data Structres
+void printAll() {
+
+    printAvailVector();
+    printAllocMatrix();
+    printMaxMatrix();
+    printNeedMatrix();
+    
+}
+
+bool isSafe()
 {
-	int completed[p];
-	for(int i=0; i<p; i++)
+	int completed[noofProcesses];
+	for(int i=0; i<noofProcesses; i++)
         completed[i] = 0;
 
-	int work[r];
-	for(int i = 0; i<r; i++)
-		work[i] = available[i];
+	int work[noofResources];
+	for(int i = 0; i<noofResources; i++)
+		work[i] = availVector[i];
 
-	int check, sequence[p], k=0, kprev=0;
-	while(k < p)
+	int check, sequence[noofProcesses], k=0, kprev=0;
+	while(k < noofProcesses)
     {
-        for(int i=0; i<p; i++)
+        for(int i=0; i<noofProcesses; i++)
         {
             if (completed[i] == 0)
             {
                 check = 0;
-                for(int j=0; j<r; j++)
-                    if(need[i][j] <= work[j])
+                for(int j=0; j<noofResources; j++)
+                    if(needMatrix[i][j] <= work[j])
                         check++;
-                if(check == r)
+                if(check == noofResources)
                 {
                     completed[i] = 1;
                     sequence[k] = i+1;
                     k++;
-                    for(int j=0; j<r; j++)
-                        work[j] += allocated[i][j];
+                    for(int j=0; j<noofResources; j++)
+                        work[j] += allocatedMatrix[i][j];
                 }
             }
         }
@@ -159,7 +177,7 @@ bool isSafe(int available[], int max[p][r], int allocated[p][r], int need[p][r])
         else if(kprev == k)
             break;
     }
-    if(k == p)
+    if(k == noofProcesses)
     {
         printf("\n\nAll processes can complete");
         printf("\nThe safe sequence is:\n");
