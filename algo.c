@@ -29,6 +29,17 @@ int main()
     printf("Resources: ");
     scanf("%d", &noofResources);
 
+    //Allocating memory for the data structres
+    availVector = (int *) malloc(noofResources*sizeof(int));
+    allocatedMatrix = (int **) malloc(noofProcesses*sizeof(int *));
+    maxMatrix = (int **) malloc(noofProcesses*sizeof(int *));
+    needMatrix = (int **) malloc(noofProcesses*sizeof(int *));
+    for(int i = 0;i < noofProcesses;i++) {
+        allocatedMatrix[i] = (int *) malloc(noofResources*sizeof(int));
+        maxMatrix[i] = (int *) malloc(noofResources*sizeof(int));
+        needMatrix[i] = (int *) malloc(noofResources*sizeof(int));
+    }
+
     //getting entries for Available Resources
     printf("\nEnter the number of available entities of each resource: \n");
     for(int i=0; i<noofResources; i++) {
@@ -64,17 +75,10 @@ int main()
             needMatrix[i][j] = maxMatrix[i][j] - allocatedMatrix[i][j];
 
     //printing everything
-    printf("AVALILABLE:\n");
-    print1d(availVector);
-    printf("\n\nmaxMatrix:\n");
-    print2d(maxMatrix);
-    printf("\n\n\nallocatedMatrix:\n");
-    print2d(allocatedMatrix);
-    printf("\n\n\nneedMatrix\n");
-    print2d(needMatrix);
+    printAll();
 
     //checking if initial state is safe
-    if(isSafe(availVector, maxMatrix, allocatedMatrix, needMatrix))
+    if(isSafe())
         printf("\n\nThe given input IS SAFE\n");
     else
         printf("\n\nThe given input IS NOT SAFE\n");
@@ -141,6 +145,7 @@ void printAll() {
     
 }
 
+//Checking if the system is safe
 bool isSafe()
 {
 	int completed[noofProcesses];
